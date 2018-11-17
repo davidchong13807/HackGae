@@ -1,27 +1,23 @@
-var myGamePiece;
+var myGamePiece; 
 
 //Left, Up, Right, Down
-var keys= ['false','false','false','false'];
+var keys= [];
 
-window.addEventListener("keydown", function(event) {
-	keys[event.keyCode-37] = true;
+window.addEventListener("keydown", function(event){
+	keys[event.keyCode] = true;
 	console.log(event.keyCode);
 }, true);
 
 window.addEventListener("keyup", function(event) {
-	keys[event.keyCode-37] = false;
+	keys[event.keyCode] = false;
 }, true);
 
 var moveSpeed=5;
 
-	
-
 function startGame() {
     myGameArea.start();
-    myGamePiece = new component(30, 30, "red", 10, 100);
+    myGamePiece = new component(100, 80, "1bun.png", 100, 100, "image")
 }
-
-
 
 var myGameArea = {
     canvas : document.createElement("canvas"),
@@ -39,8 +35,42 @@ var myGameArea = {
 }
 
 
-function component(width, height, color, x, y) {
-    this.width = width;
+function component(width, height, color, x, y, type) {
+ 	this.type = type;
+	
+	if (type == "image") {
+		
+		this.image = new Image();
+		
+		this.image.src = color;
+	}
+	
+	this.width = width;
+    
+	this.height = height;  
+	
+	this.x=x;
+	
+	this.y=y;
+	
+	
+	this.update = function(){
+   	 
+		ctx = myGameArea.context;
+    	
+		if (type == "image") {
+	
+			ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+	} 
+		else {
+	ctx.fillStyle = color;
+	cts.fillRect(this.x, this.y, this.width, this.height);
+	}
+	
+}
+
+
+  /* this.width = width;
     this.height = height;  
 	this.x=x;
 	this.y=y;
@@ -49,7 +79,7 @@ function component(width, height, color, x, y) {
     	ctx.fillStyle = color;
    	 ctx.fillRect(this.x, this.y, this.width, this.height);
 	}
-	/*this.newPos = function(){
+	this.newPos = function(){
 		this.x = 600;
 		this.y = 225;
 	}*/
@@ -97,30 +127,47 @@ function moveRight(){
 		myGamePiece.x += moveSpeed;
 	}
 }
-	
-function jump(){
-	/*var jump = 10;
-	this.interval = clearInterval(updateGameArea);
-	if(myGamePiece.y >= 460){
-		myGamePiece.y -=jump;
-		jump -=1;
-	}
-	this.interval = setInterval(updateGameArea, 20);*/
 
-	/*for(var i = 0; i < 10; i++) {
-		myGamePiece.y -= i;
-	}*/
-	
-	if(myGamePiece.y == 400) {
-		for(var i = 0; i < 10; i++) {
-			myGamePiece.y -= i;
-		}
-		console.log('jump');	
+var jumpForce = 20;
+var hasJumped = false;
+function hop(){
+	if(!hasJumped) {
+		myGamePiece.y -= jumpForce;
+	}
+}
+
+function fall() {
+	if(myGamePiece.y >= 400) {
+		hasJumped = false;
+	}
+	else {
+		hasJumped = true;
+		myGamePiece.y -= jumpForce;
+	}
+}
+
+function checkKeys(){	
+	if (keys[37]){
+	moveLeft();
+	}
+	if (keys[39]){
+	moveRight();
+	}
+	if (keys[17]){
+	moveSpeed = 15;
+	}
+	else{
+	moveSpeed = 5;
+	}
+	if (keys[38]){
+	hop();
+	}	
+	if(!keys[38]) {
+	fall();
 	}
 }
 
 var g = 0;
-
 function gravity() {
 	if(myGamePiece.y < 400) {
 		if(400 - g < myGamePiece.y) {
@@ -135,18 +182,3 @@ function gravity() {
 	//console.log(g);
 	//console.log(myGamePiece.y);
 }
-
-function checkKeys(){
-	
-	if (keys[0]){
-	moveLeft();
-	}
-	if (keys[2]){
-	moveRight();
-	}
-	if (keys[1]){
-	jump();
-	}	
-
-	
-}	
